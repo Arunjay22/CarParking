@@ -13,4 +13,7 @@ public class ParkingArea {
     public static void addCar(Connection connection, Scanner scanner) {
 
     }
+
+    public static void exitingCar(Connection connection, Scanner scanner) {
+    }
 }

@@ -10,12 +10,14 @@ public class CarParkingSystem {
 
         ParkingArea parkingArea = new ParkingArea(scanner, connection);
         while (true) {
-            System.out.println("Car Parking");
-            System.out.println("1.");
-            System.out.println("2.");
-            System.out.println("3.");
-            System.out.println("4.");
-            System.out.println("5.");
+            System.out.println("====== Car Parking System ======");
+            System.out.println("1. Park a Car");
+            System.out.println("2. View Available Parking Spaces");
+            System.out.println("3. Exit a Car from Parking");
+            System.out.println("4. View Parking Charges");
+            System.out.println("5. Exit the System");
+            System.out.println("================================");
+            System.out.print("Please select an option: ");
             int option = scanner.nextInt();
             scanner.nextLine();
 
@@ -24,10 +26,10 @@ public class CarParkingSystem {
                     ParkingArea.addCar(connection, scanner);
                     break;
                 case 2:
-                    System.out.println("");
+                    ParkingArea.exitingCar(connection, scanner);
                     break;
                 default:
-                    System.out.println("  ");
+                    System.out.println("Please Enter Valid Option");
                     break;
             }
 
