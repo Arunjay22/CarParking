@@ -1,7 +1,4 @@
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -52,5 +49,40 @@ public class ParkingSpaceAvailability {
             throw new RuntimeException(e);
         }
 
+    }
+
+    protected static void parkingSpaceRemover(Connection connection, String carNumber) {
+        String selectQuery = "SELECT carID, Time_Of_Parking, Time_Of_Exiting FROM carInformation WHERE car_number = ?";
+
+        try (PreparedStatement selectPreparedStatement = connection.prepareStatement(selectQuery)) {
+            selectPreparedStatement.setString(1, carNumber);
+
+            try (ResultSet resultSet = selectPreparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    int carID = resultSet.getInt("carID");
+                    Time time_of_parking = resultSet.getTime("Time_Of_Parking");
+                    Time time_of_exiting = resultSet.getTime("Time_Of_Exiting");
+
+                    // Now update the parking space status
+                    String updateQuery = "UPDATE parkingSpace SET Status_Of_ParkingArea = 0 WHERE carID = ?";
+                    try (PreparedStatement updatePreparedStatement = connection.prepareStatement(updateQuery)) {
+                        updatePreparedStatement.setInt(1, carID);
+                        int affectedRows = updatePreparedStatement.executeUpdate();
+
+                        if (affectedRows > 0) {
+                            // Call the ChargesCalculation method after the update
+                            ChargesCalculation.calculateCharges(carID, time_of_parking, time_of_exiting);
+                            System.out.println("Parking space updated and charges calculated.");
+                        } else {
+                            System.out.println("Parking space update failed.");
+                        }
+                    }
+                } else {
+                    System.out.println("Car not found in the system.");
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error in parking space removal: " + e.getMessage(), e);
+        }
     }
 }

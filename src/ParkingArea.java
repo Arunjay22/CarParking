@@ -66,5 +66,28 @@ public class ParkingArea extends ParkingSpaceAvailability {
     }
 
     public static void exitingCar(Connection connection, Scanner scanner) {
+        String query = "UPDATE carInformation SET Time_Of_Exiting = ? WHERE car_number= ?";
+
+        System.out.println("Enter Car ID to exit:");
+        String carNumber = scanner.nextLine();
+
+        Time time = java.sql.Time.valueOf(LocalTime.now());
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setTime(1, time);
+            preparedStatement.setString(2, carNumber);
+
+            int affectedRows = preparedStatement.executeUpdate();
+
+            if (affectedRows > 0) {
+
+                ParkingSpaceAvailability.parkingSpaceRemover(connection,carNumber);
+                System.out.println("Car exited successfully.");
+            } else {
+                System.out.println("No car found with the given ID.");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error while updating car exit time: " + e.getMessage(), e);
+        }
     }
 }
