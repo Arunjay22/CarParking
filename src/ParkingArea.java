@@ -44,8 +44,10 @@ public class ParkingArea extends ParkingSpaceAvailability {
                 if (affectedRows > 0) {
                     try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
                         if (resultSet.next()) {
+
                             int carID = resultSet.getInt(1);
                             parkingSpaceAssigner(connection, setTrueOnID,carID);
+
                         }
                     }
                     System.out.println("Car Parked Successfully");
