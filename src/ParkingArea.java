@@ -14,11 +14,11 @@ public class ParkingArea extends ParkingSpaceAvailability {
 
     public static void addCar(Connection connection, Scanner scanner) {
 
-        String s = parkingSpaceGenerator(connection);
+        String setTrueOnID = parkingSpaceGenerator(connection);
 
-        if (s.length() == 2) {
+        if (setTrueOnID != null && !setTrueOnID.isEmpty()) {
 
-            parkingSpaceAssigner(connection,s);
+
             //collecting Information Part
             System.out.println("Enter Car Number :");
             String carNumber = scanner.nextLine();
@@ -33,15 +33,21 @@ public class ParkingArea extends ParkingSpaceAvailability {
             String query = "insert into carInformation (car_number , car_color ,Date_of_parking, time_of_parking) values (?,?,?,?)";
 
             try {
-                PreparedStatement preparedStatement = connection.prepareStatement(query);
-                preparedStatement.setString(1,carNumber);
-                preparedStatement.setString(2,carColor);
-                preparedStatement.setDate(3,entryDate);
+                PreparedStatement preparedStatement = connection.prepareStatement(query,Statement.RETURN_GENERATED_KEYS);
+                preparedStatement.setString(1, carNumber);
+                preparedStatement.setString(2, carColor);
+                preparedStatement.setDate(3, entryDate);
                 preparedStatement.setTime(4, entryTime);
 
                 int affectedRows = preparedStatement.executeUpdate();
 
                 if (affectedRows > 0) {
+                    try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
+                        if (resultSet.next()) {
+                            int carID = resultSet.getInt(1);
+                            parkingSpaceAssigner(connection, setTrueOnID,carID);
+                        }
+                    }
                     System.out.println("Car Parked Successfully");
                 }
 
@@ -49,6 +55,10 @@ public class ParkingArea extends ParkingSpaceAvailability {
                 throw new RuntimeException(e);
             }
 
+        } else {
+            System.out.println("================================");
+            System.out.println("|    No Parking Space here     |");
+            System.out.println("================================");
         }
 
     }
